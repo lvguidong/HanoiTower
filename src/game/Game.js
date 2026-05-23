@@ -9,8 +9,21 @@ export class Game {
     this.history = [];
     this.selectedTower = null;
     this.isAnimating = false;
+    this.isDemoing = false;
+    this.demoMoves = [];
+    this.demoIndex = 0;
+    this.demoTimeout = null;
     this.onStateChange = null;
     this.onVictory = null;
+  }
+
+  solve(n, from, to, aux) {
+    if (n === 0) return [];
+    return [
+      ...this.solve(n - 1, from, aux, to),
+      { from, to },
+      ...this.solve(n - 1, aux, to, from),
+    ];
   }
 
   init() {
@@ -107,6 +120,78 @@ export class Game {
         diskCount: this.level.getDiskCount(),
         canUndo: this.history.length > 0,
       });
+    }
+  }
+
+  // --- Demo ---
+
+  startDemo() {
+    if (this.isDemoing) {
+      this.stopDemo();
+      return;
+    }
+    this.init();
+    this.isDemoing = true;
+    this.demoMoves = this.solve(this.level.getDiskCount(), 0, 2, 1);
+    this.demoIndex = 0;
+    this._demoStep();
+  }
+
+  stopDemo() {
+    this.isDemoing = false;
+    if (this.demoTimeout) {
+      clearTimeout(this.demoTimeout);
+      this.demoTimeout = null;
+    }
+    this._notifyChange();
+  }
+
+  _demoStep() {
+    if (!this.isDemoing || this.demoIndex >= this.demoMoves.length) {
+      this.isDemoing = false;
+      if (this.onVictory) this.onVictory(this.moveCount);
+      return;
+    }
+
+    const { from, to } = this.demoMoves[this.demoIndex];
+    const diskSize = this.canMove(from, to);
+
+    if (diskSize === 'invalid' || diskSize === null) {
+      this.isDemoing = false;
+      return;
+    }
+
+    // Highlight source
+    this.selectedTower = from;
+    this._notifyChange();
+
+    // Animate move
+    const state = {
+      towers: this.towers.map((t) => [...t]),
+      moveCount: this.moveCount,
+      selectedTower: this.selectedTower,
+      minMoves: this.level.getMinMoves(),
+      diskCount: this.level.getDiskCount(),
+      canUndo: this.history.length > 0,
+    };
+
+    this.onDemoMove?.(from, to, diskSize, state, () => {
+      this._doMoveDirect(from, to);
+      this.demoIndex++;
+      this.demoTimeout = setTimeout(() => this._demoStep(), 600);
+    });
+  }
+
+  _doMoveDirect(fromIndex, toIndex) {
+    const disk = this.towers[fromIndex].pop();
+    this.towers[toIndex].push(disk);
+    this.history.push({ from: fromIndex, to: toIndex, disk });
+    this.moveCount++;
+    this.selectedTower = null;
+    this._notifyChange();
+
+    if (this._checkVictory()) {
+      if (this.onVictory) this.onVictory(this.moveCount);
     }
   }
 }

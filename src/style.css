@@ -310,6 +310,23 @@ body {
   cursor: not-allowed;
 }
 
+.btn-demo {
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  color: white;
+}
+
+.btn-demo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.3);
+}
+
+.btn-demo:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-icon {
   font-size: 1.1rem;
 }

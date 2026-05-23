@@ -14,6 +14,8 @@ document.addEventListener('touchstart', () => audio.resume(), { once: true });
 // Tower click handlers
 document.querySelectorAll('.tower').forEach((el) => {
   el.addEventListener('click', () => {
+    if (game.isDemoing) return;
+
     const index = parseInt(el.dataset.tower, 10);
 
     if (game.selectedTower === null) {
@@ -53,8 +55,24 @@ document.querySelectorAll('.tower').forEach((el) => {
   });
 });
 
+// Demo button
+const demoBtn = document.getElementById('btn-demo');
+demoBtn.addEventListener('click', () => {
+  game.startDemo();
+});
+
+// Demo move callback — uses renderer's animation
+game.onDemoMove = (from, to, diskSize, state, onDone) => {
+  audio.playPickup();
+  renderer.moveDiskAnimate(from, to, diskSize, state, () => {
+    audio.playPlace();
+    onDone();
+  });
+};
+
 // Reset button
 document.getElementById('btn-reset').addEventListener('click', () => {
+  game.stopDemo();
   game.reset();
   renderer.hideVictoryModal();
   audio.playPickup();
@@ -78,10 +96,13 @@ bgmToggle.addEventListener('click', () => {
 // State change handler
 game.onStateChange = (state) => {
   renderer.render(state);
+  demoBtn.querySelector('.btn-icon').textContent = game.isDemoing ? '■' : '▶';
+  demoBtn.querySelector('.btn-icon').nextSibling.textContent = game.isDemoing ? ' 停止' : ' 演示';
 };
 
 // Victory handler
 game.onVictory = (moveCount) => {
+  game.stopDemo();
   audio.playVictory();
   game.level.advance();
   renderer.showVictoryModal(moveCount, game.level.getMinMoves(), () => {
@@ -100,6 +121,7 @@ renderer.updateLevelSelect(
 );
 
 function startLevel(levelNum) {
+  game.stopDemo();
   game.level.setLevel(levelNum);
   game.init();
   renderer.updateLevelSelect(
