@@ -1,0 +1,448 @@
+:root {
+  --bg-start: #1a1a2e;
+  --bg-end: #16213e;
+  --tower-color: #8b6914;
+  --tower-dark: #6b5210;
+  --tower-light: #a8842a;
+  --text-primary: #e8e8f0;
+  --text-secondary: #9898b0;
+  --accent: #4ecdc4;
+  --accent-hover: #3dbdb5;
+  --danger: #ff6b6b;
+  --warning: #ffd93d;
+  --modal-bg: rgba(22, 33, 62, 0.95);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  --tower-height: 280px;
+  --tower-width: 200px;
+  --base-height: 20px;
+  --pole-width: 12px;
+  --disk-height: 28px;
+  --disk-gap: 4px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+}
+
+/* Header */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.game-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1.2rem;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.icon-btn.muted .icon {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.level-select {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.level-select option {
+  background: var(--bg-end);
+  color: var(--text-primary);
+}
+
+/* Stats */
+.stats-bar {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Game Board */
+.game-board {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 24px;
+  padding: 20px 0;
+  position: relative;
+}
+
+.tower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  width: var(--tower-width);
+  transition: transform 0.2s;
+}
+
+.tower:hover {
+  transform: translateY(-2px);
+}
+
+.tower-disk-area {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  height: var(--tower-height);
+  width: 100%;
+  position: relative;
+  gap: var(--disk-gap);
+}
+
+/* Tower Pole */
+.tower::before {
+  content: '';
+  position: absolute;
+  bottom: var(--base-height);
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--pole-width);
+  height: var(--tower-height);
+  background: linear-gradient(90deg, var(--tower-dark), var(--tower-color), var(--tower-dark));
+  border-radius: 6px 6px 0 0;
+}
+
+.tower-base {
+  width: 160px;
+  height: var(--base-height);
+  background: linear-gradient(90deg, var(--tower-dark), var(--tower-color), var(--tower-light), var(--tower-color), var(--tower-dark));
+  border-radius: 4px;
+  margin-top: auto;
+}
+
+.tower-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Drop target highlight */
+.tower.drop-target::before {
+  background: linear-gradient(90deg, var(--accent), var(--tower-color), var(--accent));
+  box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+}
+
+/* Disks */
+.disk {
+  height: var(--disk-height);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.7);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  cursor: grab;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.disk:active {
+  cursor: grabbing;
+}
+
+.disk.selected {
+  transform: translateY(-15px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+  z-index: 10;
+}
+
+.disk.invalid {
+  animation: shake 0.4s ease;
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+}
+
+.disk.dragging {
+  opacity: 0.7;
+  transform: scale(1.1);
+  z-index: 100;
+  position: fixed;
+  pointer-events: none;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+@keyframes disk-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.disk.appear {
+  animation: disk-appear 0.3s ease forwards;
+}
+
+/* Controls */
+.game-controls {
+  display: flex;
+  gap: 16px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reset {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-undo {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.btn-undo:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-undo:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  color: white;
+  padding: 14px 36px;
+  font-size: 1.1rem;
+}
+
+.btn-next:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.4);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--modal-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  animation: modal-in 0.4s ease;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-icon {
+  font-size: 3rem;
+  color: var(--warning);
+  margin-bottom: 12px;
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modal-message {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .game-board {
+    gap: 16px;
+  }
+
+  .tower {
+    --tower-height: 220px;
+    --tower-width: 140px;
+    width: var(--tower-width);
+  }
+
+  .tower-base {
+    width: 120px;
+  }
+
+  :root {
+    --disk-height: 24px;
+  }
+
+  .game-title {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-board {
+    gap: 8px;
+  }
+
+  .tower {
+    --tower-height: 180px;
+    --tower-width: 100px;
+    width: var(--tower-width);
+  }
+
+  .tower-base {
+    width: 90px;
+  }
+
+  .game-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

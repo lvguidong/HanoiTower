@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>汉诺塔 - Tower of Hanoi</title>
+  </head>
+  <body>
+    <div class="game-container">
+      <!-- Header -->
+      <header class="game-header">
+        <h1 class="game-title">汉诺塔</h1>
+        <div class="header-controls">
+          <button id="bgm-toggle" class="icon-btn" title="背景音乐开关">
+            <span class="icon">🔊</span>
+          </button>
+          <select id="level-select" class="level-select"></select>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-label">步数</span>
+          <span id="move-count" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">最少</span>
+          <span id="min-moves" class="stat-value">7</span>
+        </div>
+      </div>
+
+      <!-- Game Board -->
+      <div id="game-board" class="game-board">
+        <div class="tower" data-tower="0">
+          <div class="tower-disk-area"></div>
+          <div class="tower-base"></div>
+          <div class="tower-label">A</div>
+        </div>
+        <div class="tower" data-tower="1">
+          <div class="tower-disk-area"></div>
+          <div class="tower-base"></div>
+          <div class="tower-label">B</div>
+        </div>
+        <div class="tower" data-tower="2">
+          <div class="tower-disk-area"></div>
+          <div class="tower-base"></div>
+          <div class="tower-label">C</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="game-controls">
+        <button id="btn-reset" class="btn btn-reset">
+          <span class="btn-icon">↺</span> 重置
+        </button>
+        <button id="btn-undo" class="btn btn-undo">
+          <span class="btn-icon">←</span> 撤销
+        </button>
+      </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-icon">★</div>
+        <h2 class="modal-title">恭喜通关！</h2>
+        <p class="modal-message"></p>
+        <button id="btn-next-level" class="btn btn-next">下一关 →</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
