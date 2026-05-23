@@ -101,13 +101,18 @@ game.onStateChange = (state) => {
 };
 
 // Victory handler
-game.onVictory = (moveCount) => {
+game.onVictory = (moveCount, elapsed) => {
   game.stopDemo();
   audio.playVictory();
   game.level.advance();
-  renderer.showVictoryModal(moveCount, game.level.getMinMoves(), () => {
+  renderer.showVictoryModal(moveCount, game.level.getMinMoves(), elapsed, () => {
     startLevel(game.level.current);
   });
+};
+
+// Timer tick handler
+game.onTimerTick = (seconds) => {
+  renderer.setTimer(seconds);
 };
 
 // Level select handler
@@ -124,6 +129,7 @@ function startLevel(levelNum) {
   game.stopDemo();
   game.level.setLevel(levelNum);
   game.init();
+  renderer.setTimer(0);
   renderer.updateLevelSelect(
     game.level.getMaxUnlocked(),
     game.level.current,

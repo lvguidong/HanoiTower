@@ -13,8 +13,13 @@ export class Game {
     this.demoMoves = [];
     this.demoIndex = 0;
     this.demoTimeout = null;
+    this.timerElapsed = 0;
+    this.timerRunning = false;
+    this.timerInterval = null;
+    this.firstMoveMade = false;
     this.onStateChange = null;
     this.onVictory = null;
+    this.onTimerTick = null;
   }
 
   solve(n, from, to, aux) {
@@ -36,7 +41,28 @@ export class Game {
     this.moveCount = 0;
     this.history = [];
     this.selectedTower = null;
+    this.timerElapsed = 0;
+    this.timerRunning = false;
+    this.firstMoveMade = false;
+    this._stopTimer();
     this._notifyChange();
+  }
+
+  _startTimer() {
+    if (this.timerRunning) return;
+    this.timerRunning = true;
+    this.timerInterval = setInterval(() => {
+      this.timerElapsed++;
+      if (this.onTimerTick) this.onTimerTick(this.timerElapsed);
+    }, 1000);
+  }
+
+  _stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.timerRunning = false;
   }
 
   selectTower(towerIndex) {
@@ -77,6 +103,11 @@ export class Game {
       return 'invalid';
     }
 
+    if (!this.firstMoveMade) {
+      this.firstMoveMade = true;
+      this._startTimer();
+    }
+
     const disk = source.pop();
     target.push(disk);
     this.history.push({ from: this.selectedTower, to: targetIndex, disk });
@@ -85,7 +116,8 @@ export class Game {
     this._notifyChange();
 
     if (this._checkVictory()) {
-      if (this.onVictory) this.onVictory(this.moveCount);
+      this._stopTimer();
+      if (this.onVictory) this.onVictory(this.moveCount, this.timerElapsed);
     }
 
     return true;
@@ -149,7 +181,8 @@ export class Game {
   _demoStep() {
     if (!this.isDemoing || this.demoIndex >= this.demoMoves.length) {
       this.isDemoing = false;
-      if (this.onVictory) this.onVictory(this.moveCount);
+      this._stopTimer();
+      if (this.onVictory) this.onVictory(this.moveCount, this.timerElapsed);
       return;
     }
 
@@ -159,6 +192,11 @@ export class Game {
     if (diskSize === 'invalid' || diskSize === null) {
       this.isDemoing = false;
       return;
+    }
+
+    if (!this.firstMoveMade) {
+      this.firstMoveMade = true;
+      this._startTimer();
     }
 
     // Highlight source
@@ -191,7 +229,8 @@ export class Game {
     this._notifyChange();
 
     if (this._checkVictory()) {
-      if (this.onVictory) this.onVictory(this.moveCount);
+      this._stopTimer();
+      if (this.onVictory) this.onVictory(this.moveCount, this.timerElapsed);
     }
   }
 }

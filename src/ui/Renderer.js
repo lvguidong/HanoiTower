@@ -9,8 +9,15 @@ export class Renderer {
     this.towerEls = document.querySelectorAll('.tower');
     this.moveCountEl = document.getElementById('move-count');
     this.minMovesEl = document.getElementById('min-moves');
+    this.timerEl = document.getElementById('timer');
     this.undoBtn = document.getElementById('btn-undo');
     this.levelSelect = document.getElementById('level-select');
+  }
+
+  formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   }
 
   render(state) {
@@ -31,7 +38,7 @@ export class Renderer {
     this.levelSelect.onchange = () => onChange(parseInt(this.levelSelect.value, 10));
   }
 
-  showVictoryModal(moveCount, minMoves, onNextLevel) {
+  showVictoryModal(moveCount, minMoves, elapsed, onNextLevel) {
     const modal = document.getElementById('victory-modal');
     const message = modal.querySelector('.modal-message');
     const ratio = moveCount / minMoves;
@@ -43,6 +50,7 @@ export class Renderer {
 
     message.innerHTML = `
       用了 <strong>${moveCount}</strong> 步完成（最少 ${minMoves} 步）<br>
+      用时 <strong>${this.formatTime(elapsed)}</strong><br>
       <span style="color: var(--accent); font-weight: 600;">${rating}</span>
     `;
 
@@ -98,6 +106,10 @@ export class Renderer {
   _renderStats(state) {
     this.moveCountEl.textContent = state.moveCount;
     this.minMovesEl.textContent = state.minMoves;
+  }
+
+  setTimer(seconds) {
+    this.timerEl.textContent = this.formatTime(seconds);
   }
 
   _renderUndoButton(state) {
