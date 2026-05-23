@@ -94,6 +94,7 @@ export class Renderer {
         const colorIdx = (diskSize - 1) % DISK_COLORS.length;
         diskEl.style.background = `linear-gradient(180deg, ${DISK_COLORS[colorIdx]}, ${DISK_COLORS[(colorIdx + 1) % DISK_COLORS.length]})`;
         diskEl.dataset.size = diskSize;
+        diskEl.textContent = diskSize;
 
         // Top disk = smallest = last in array
         if (state.selectedTower === towerIndex && i === disks.length - 1) {
