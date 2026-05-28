@@ -1,6 +1,8 @@
 export class AudioManager {
   constructor() {
     this.ctx = null;
+    this.bgmGain = null;
+    this.bgmNodes = new Set();
     this.bgmEnabled = true;
     this.bgmTimeout = null;
     this.initialized = false;
@@ -10,6 +12,9 @@ export class AudioManager {
     if (this.initialized) return;
     try {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.bgmGain = this.ctx.createGain();
+      this.bgmGain.gain.value = 0.06;
+      this.bgmGain.connect(this.ctx.destination);
       this.initialized = true;
     } catch (e) {
       console.warn('Web Audio API not supported');
@@ -47,6 +52,8 @@ export class AudioManager {
 
   startBGM() {
     if (!this.ctx || !this.bgmEnabled) return;
+    this.stopBGM();
+    this.bgmGain.gain.value = 0.06;
     this._playBGMSequence();
   }
 
@@ -55,6 +62,10 @@ export class AudioManager {
       clearTimeout(this.bgmTimeout);
       this.bgmTimeout = null;
     }
+    for (const node of this.bgmNodes) {
+      try { node.stop(); } catch (e) { /* already stopped */ }
+    }
+    this.bgmNodes.clear();
   }
 
   toggleBGM() {
@@ -139,7 +150,11 @@ export class AudioManager {
     filter.frequency.setValueAtTime(3000, startTime);
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.bgmGain);
+
+    this.bgmNodes.add(osc);
+    osc.onended = () => { this.bgmNodes.delete(osc); };
+
     osc.start(startTime);
     osc.stop(startTime + duration);
   }
